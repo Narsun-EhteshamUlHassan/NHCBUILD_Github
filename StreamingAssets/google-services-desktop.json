@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1089644971593",
+    "project_id": "nhcmetaversemobile",
+    "storage_bucket": "nhcmetaversemobile.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1089644971593:android:11fe01ebdc9d966b0fe198",
+        "android_client_info": {
+          "package_name": "com.NARSUNStudios.NHCMetaverse"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBeHLA1F6QxGH2LBrmMbZ7ZfwXHc8wex6c"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

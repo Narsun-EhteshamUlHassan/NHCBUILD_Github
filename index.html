@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en-us">
+
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" http-equiv="Content-Type"
+		content="text/html; charset=utf-8, width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+	<title>NHC Metaverse</title>
+	<link rel="shortcut icon" href="TemplateData/logo.png">
+	<link rel="stylesheet" href="TemplateData/style.css">
+	<script src="AgoraWebSDK/libs/agora-extension-virtual-background.js"></script>
+	<script src="AgoraWebSDK/libs/virtualbackground.js"></script>
+	<script src="AgoraWebSDK/libs/databuilder.js"></script>
+	<script src="AgoraWebSDK/libs/clientmanager.js"></script>
+	<script src="AgoraWebSDK/libs/wglwrapper.js"></script>
+	<script src="AgoraWebSDK/libs/audioeffects.js"></script>
+	<script src="AgoraWebSDK/libs/eventmanager.js"></script>
+	<script src="AgoraWebSDK/libs/engineglobals.js"></script>
+	<script src="AgoraWebSDK/libs/watermark.js"></script>
+	<script src="AgoraWebSDK/libs/customvideo.js"></script>
+	<script src="AgoraWebSDK/libs/agorachannel.js"></script>
+	<script src="AgoraWebSDK/libs/multichannel.js"></script>
+	<script src="AgoraWebSDK/libs/audiosystem.js"></script>
+	<script src="AgoraWebSDK/libs/testing.js"></script>
+	<script src="AgoraWebSDK/libs/agorautils.js"></script>
+	<script src="AgoraWebSDK/libs/audiomixing.js"></script>
+	<script src="AgoraWebSDK/agorartcenginev2.js"></script>
+	<script src="AgoraRTC_N.js"></script>
+	<script src="AgoraWebSDK/libs/spatial-audio-main.js" type="module"></script>
+	<script src="https://cdn.socket.io/socket.io-3.0.0.js"></script>
+	<script src="https://smtpjs.com/v3/smtp.js">
+	</script>
+</head>
+
+<body>
+	<div id="unity-container" style="width: 100%; height: 100%">
+		<div id="custom-logo" hidden></div>
+		<div id="custom-loader" hidden>
+			<div class="fill"></div>
+			<div class="label"></div>
+		</div>
+		<div id="unity-fullscreen-button"></div>
+
+		<canvas id="unity-canvas" width="auto" height="auto"></canvas>
+		<div id="unity-mobile-warning">
+			<div class="warning-img">
+				<img src="./TemplateData/warning__sign.png" alt="" />
+			</div>
+			<! -- <div class="warning-text">
+				<h3>العالم الافتراضي غير متاح</h3>
+				<p>
+					الميتافرس غير متاح حاليًا على الهواتف المحمولة. للحصول على أفضل
+					تجربة، استخدم الإصدار الخاص بمتصفح الويب على سطح المكتب.
+				</p>
+		</div>-->
+	</div>
+	</div>
+
+	<canvas id="inMem_Canvas" height="450" width="450" style="display: none"></canvas>
+	<canvas id="myCanvas" height="450" width="450" style="display: none"></canvas>
+
+	<div>
+		<div id="client-stats" class="stats"></div>
+		<div class="row video-group">
+			<div class="col">
+				<p id="local-player-name" class="player-name"></p>
+				<div class="player-with-stats">
+					<div id="local-player" class="player"></div>
+					<div id="local-stats" class="stream-stats stats"></div>
+				</div>
+			</div>
+			<div class="w-100"></div>
+			<div class="col">
+				<div id="remote-playerlist"></div>
+			</div>
+		</div>
+	</div>
+
+
+	<script>
+		const boothKeys = [
+			{ boothId: '09', param: "OpGkpUr81izlt34ERiik9AzcrYVr13mg", logoUrl: "booth-09-logo.png", height: "", width: "32%" },
+		]
+
+		var unityInstance;
+		var mainCanvas = document.getElementById("myCanvas");
+		var mainContext = mainCanvas.getContext('2d');
+		var inMemCanvas = document.getElementById("inMem_Canvas");
+		var inMemContext = inMemCanvas.getContext('2d');
+		var canvasWidth = mainCanvas.width;
+		var canvasHeight = mainCanvas.height;
+		var angle = 0;
+
+		var buildUrl = "Build";
+		var loaderUrl = buildUrl + "/Testing.loader.js";
+		var config = {
+			dataUrl: buildUrl + "/Testing.data",
+			frameworkUrl: buildUrl + "/Testing.framework.js",
+			codeUrl: buildUrl + "/Testing.wasm",
+			streamingAssetsUrl: "StreamingAssets",
+			companyName: "NARSUN Studios",
+			productName: "NHC Metaverse",
+			productVersion: "0.12",
+			autoSyncPersistentDataPath: true  // ✅ Added to enable automatic sync
+		};
+
+		const searchParams = new URLSearchParams(window.location.search);
+		// let valueComparison = searchParams.split('=');
+
+		var customLogo = document.getElementById("custom-logo");
+
+		boothKeys.forEach((val)=>{
+			if(searchParams.get("q") == val.param){
+				customLogo.style.backgroundImage = `url(TemplateData/${val.logoUrl})`;
+				if(val.width){
+					customLogo.style.width = `${val.width}`;
+				}
+				if(val.height){
+					customLogo.style.height = `${val.height}`;
+				}
+			}
+			
+		})
+
+		var customLoader = document.getElementById("custom-loader");
+		var customBar = document.querySelector(".fill");
+		var container = document.querySelector("#unity-container");
+		var canvas = document.querySelector("#unity-canvas");
+		var loadingBar = document.querySelector("#unity-loading-bar");
+		var progressBarFull = document.querySelector("#unity-progress-bar-full");
+		var fullscreenButton = document.querySelector("#unity-fullscreen-button");
+		var mobileWarning = document.querySelector("#unity-mobile-warning");
+
+
+		function sendEmail(companyEmail) {
+			Email.send({
+				Host: "smtp.gmail.com",
+				Username: "shoaibmansoor@narsunstudios.com",
+				Password: "Narsun@12321",
+				To: companyEmail,
+				From: "shoaibmansoor@narsunstudios.com",
+				Subject: "Sending Email using javascript",
+				Body: "Well that was easy!!",
+
+			})
+				.then(function (message) {
+					alert("Mail has been sent successfully")
+				});
+		}
+
+		if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
+			container.className = "unity-mobile";
+			// config.devicePixelRatio = 1;
+			mobileWarning.style.display = "none";
+			//setTimeout(() => {
+			// mobileWarning.style.display = "block";
+			//}, 5000);
+		} else {
+			canvas.style.width = "100%";
+			canvas.style.height = "100%";
+			//mobileWarning.style.display = "none";
+			mobileWarning.style.display = "none";
+		}
+
+		customLogo.style.display = "block";
+		customLoader.style.display = "block";
+		//loadingBar.style.display = "block";
+
+		var script = document.createElement("script");
+		script.src = loaderUrl;
+		script.onload = () => {
+			createUnityInstance(canvas, config, (progress) => {
+				customBar.style.width = 100 * progress + "%";
+			})
+				.then((unityInstance2) => {
+					unityInstance = unityInstance2;
+					window.unityInstance = unityInstance;
+					customLoader.style.display = "none";
+					customLogo.style.display = "none";
+
+
+					fullscreenButton.onclick = () => {
+						unityInstance2.SetFullscreen(1);
+					};
+				})
+				.catch((message) => {
+					alert(message);
+				});
+		};
+		document.body.appendChild(script);
+	</script>
+
+	<script>
+		window.addEventListener("message", function (event) {
+			if (event.data === "RELOAD_PAGE") {
+				location.reload(); // Reloads the current page
+			}
+		});
+	</script>
+
+
+	</script>
+
+</body>
+
+</html>
