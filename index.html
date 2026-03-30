@@ -1,209 +1,133 @@
 <!DOCTYPE html>
 <html lang="en-us">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Unity Web Player | Test</title>
+    <link rel="shortcut icon" href="TemplateData/favicon.ico">
+    <link rel="stylesheet" href="TemplateData/style.css">
+  </head>
+  <body>
+    <div id="unity-container" class="unity-desktop">
+      <canvas id="unity-canvas" width=960 height=600 tabindex="-1"></canvas>
+      <div id="unity-loading-bar">
+        <div id="unity-logo"></div>
+        <div id="unity-progress-bar-empty">
+          <div id="unity-progress-bar-full"></div>
+        </div>
+      </div>
+      <div id="unity-warning"> </div>
+      <div id="unity-footer">
+        <div id="unity-logo-title-footer"></div>
+        <div id="unity-fullscreen-button"></div>
+        <div id="unity-build-title">Test</div>
+      </div>
+    </div>
+    <script>
+      var canvas = document.querySelector("#unity-canvas");
 
-<head>
-	<meta charset="utf-8">
-	<meta name="viewport" http-equiv="Content-Type"
-		content="text/html; charset=utf-8, width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-	<title>NHC Metaverse</title>
-	<link rel="shortcut icon" href="TemplateData/logo.png">
-	<link rel="stylesheet" href="TemplateData/style.css">
-	<script src="AgoraWebSDK/libs/agora-extension-virtual-background.js"></script>
-	<script src="AgoraWebSDK/libs/virtualbackground.js"></script>
-	<script src="AgoraWebSDK/libs/databuilder.js"></script>
-	<script src="AgoraWebSDK/libs/clientmanager.js"></script>
-	<script src="AgoraWebSDK/libs/wglwrapper.js"></script>
-	<script src="AgoraWebSDK/libs/audioeffects.js"></script>
-	<script src="AgoraWebSDK/libs/eventmanager.js"></script>
-	<script src="AgoraWebSDK/libs/engineglobals.js"></script>
-	<script src="AgoraWebSDK/libs/watermark.js"></script>
-	<script src="AgoraWebSDK/libs/customvideo.js"></script>
-	<script src="AgoraWebSDK/libs/agorachannel.js"></script>
-	<script src="AgoraWebSDK/libs/multichannel.js"></script>
-	<script src="AgoraWebSDK/libs/audiosystem.js"></script>
-	<script src="AgoraWebSDK/libs/testing.js"></script>
-	<script src="AgoraWebSDK/libs/agorautils.js"></script>
-	<script src="AgoraWebSDK/libs/audiomixing.js"></script>
-	<script src="AgoraWebSDK/agorartcenginev2.js"></script>
-	<script src="AgoraRTC_N.js"></script>
-	<script src="AgoraWebSDK/libs/spatial-audio-main.js" type="module"></script>
-	<script src="https://cdn.socket.io/socket.io-3.0.0.js"></script>
-	<script src="https://smtpjs.com/v3/smtp.js">
-	</script>
-</head>
+      // Shows a temporary message banner/ribbon for a few seconds, or
+      // a permanent error message on top of the canvas if type=='error'.
+      // If type=='warning', a yellow highlight color is used.
+      // Modify or remove this function to customize the visually presented
+      // way that non-critical warnings and error messages are presented to the
+      // user.
+      function unityShowBanner(msg, type) {
+        var warningBanner = document.querySelector("#unity-warning");
+        function updateBannerVisibility() {
+          warningBanner.style.display = warningBanner.children.length ? 'block' : 'none';
+        }
+        var div = document.createElement('div');
+        div.innerHTML = msg;
+        warningBanner.appendChild(div);
+        if (type == 'error') div.style = 'background: red; padding: 10px;';
+        else {
+          if (type == 'warning') div.style = 'background: yellow; padding: 10px;';
+          setTimeout(function() {
+            warningBanner.removeChild(div);
+            updateBannerVisibility();
+          }, 5000);
+        }
+        updateBannerVisibility();
+      }
 
-<body>
-	<div id="unity-container" style="width: 100%; height: 100%">
-		<div id="custom-logo" hidden></div>
-		<div id="custom-loader" hidden>
-			<div class="fill"></div>
-			<div class="label"></div>
-		</div>
-		<div id="unity-fullscreen-button"></div>
+      var buildUrl = "Build";
+      var loaderUrl = buildUrl + "/Build.loader.js";
+      var config = {
+        arguments: [],
+        dataUrl: buildUrl + "/Build.data.gz",
+        frameworkUrl: buildUrl + "/Build.framework.js.gz",
+        codeUrl: buildUrl + "/Build.wasm.gz",
+        streamingAssetsUrl: "StreamingAssets",
+        companyName: "DefaultCompany",
+        productName: "Test",
+        productVersion: "1.0",
+        showBanner: unityShowBanner,
+        // errorHandler: function(err, url, line) {
+        //    alert("error " + err + " occurred at line " + line);
+        //    // Return 'true' if you handled this error and don't want Unity
+        //    // to process it further, 'false' otherwise.
+        //    return true;
+        // },
+      };
 
-		<canvas id="unity-canvas" width="auto" height="auto"></canvas>
-		<div id="unity-mobile-warning">
-			<div class="warning-img">
-				<img src="./TemplateData/warning__sign.png" alt="" />
-			</div>
-			<! -- <div class="warning-text">
-				<h3>العالم الافتراضي غير متاح</h3>
-				<p>
-					الميتافرس غير متاح حاليًا على الهواتف المحمولة. للحصول على أفضل
-					تجربة، استخدم الإصدار الخاص بمتصفح الويب على سطح المكتب.
-				</p>
-		</div>-->
-	</div>
-	</div>
+      // By default, Unity keeps WebGL canvas render target size matched with
+      // the DOM size of the canvas element (scaled by window.devicePixelRatio)
+      // Set this to false if you want to decouple this synchronization from
+      // happening inside the engine, and you would instead like to size up
+      // the canvas DOM size and WebGL render target sizes yourself.
+      // config.matchWebGLToCanvasSize = false;
 
-	<canvas id="inMem_Canvas" height="450" width="450" style="display: none"></canvas>
-	<canvas id="myCanvas" height="450" width="450" style="display: none"></canvas>
+      // If you would like all file writes inside Unity Application.persistentDataPath
+      // directory to automatically persist so that the contents are remembered when
+      // the user revisits the site the next time, uncomment the following line:
+      // config.autoSyncPersistentDataPath = true;
+      // This autosyncing is currently not the default behavior to avoid regressing
+      // existing user projects that might rely on the earlier manual
+      // JS_FileSystem_Sync() behavior, but in future Unity version, this will be
+      // expected to change.
 
-	<div>
-		<div id="client-stats" class="stats"></div>
-		<div class="row video-group">
-			<div class="col">
-				<p id="local-player-name" class="player-name"></p>
-				<div class="player-with-stats">
-					<div id="local-player" class="player"></div>
-					<div id="local-stats" class="stream-stats stats"></div>
-				</div>
-			</div>
-			<div class="w-100"></div>
-			<div class="col">
-				<div id="remote-playerlist"></div>
-			</div>
-		</div>
-	</div>
+      if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
+        // Mobile device style: fill the whole browser client area with the game canvas:
 
+        var meta = document.createElement('meta');
+        meta.name = 'viewport';
+        meta.content = 'width=device-width, height=device-height, initial-scale=1.0, user-scalable=no, shrink-to-fit=yes';
+        document.getElementsByTagName('head')[0].appendChild(meta);
+        document.querySelector("#unity-container").className = "unity-mobile";
+        canvas.className = "unity-mobile";
 
-	<script>
-		const boothKeys = [
-			{ boothId: '09', param: "OpGkpUr81izlt34ERiik9AzcrYVr13mg", logoUrl: "booth-09-logo.png", height: "", width: "32%" },
-			{ boothId: '14', param: "DYCklbVygCHkptQSI3oG14zsM4cXkkcZ", logoUrl: "booth-14-logo.png", height: "", width: "32%" },
-			{ boothId: '25', param: "Q4wErTyUiOpAsD7fGhJkLzXcVbNm6T9", logoUrl: "booth-25-logo.png", height: "", width: "32%" },
-			{ boothId: '25.1', param: "M2nBvCxZlKjHgF5dSaQwErTyUiOpP8Q3", logoUrl: "booth-25-1-logo.jpeg", height: "", width: "32%" },
-		]
-
-		var unityInstance;
-		var mainCanvas = document.getElementById("myCanvas");
-		var mainContext = mainCanvas.getContext('2d');
-		var inMemCanvas = document.getElementById("inMem_Canvas");
-		var inMemContext = inMemCanvas.getContext('2d');
-		var canvasWidth = mainCanvas.width;
-		var canvasHeight = mainCanvas.height;
-		var angle = 0;
-
-		var buildUrl = "Build";
-		var loaderUrl = buildUrl + "/Testing.loader.js";
-		var config = {
-			dataUrl: buildUrl + "/Testing.data",
-			frameworkUrl: buildUrl + "/Testing.framework.js",
-			codeUrl: buildUrl + "/Testing.wasm",
-			streamingAssetsUrl: "StreamingAssets",
-			companyName: "NARSUN Studios",
-			productName: "NHC Metaverse",
-			productVersion: "0.12",
-			autoSyncPersistentDataPath: true  // ✅ Added to enable automatic sync
-		};
-
-		const searchParams = new URLSearchParams(window.location.search);
-		// let valueComparison = searchParams.split('=');
-
-		var customLogo = document.getElementById("custom-logo");
-
-		boothKeys.forEach((val)=>{
-			if(searchParams.get("q") == val.param){
-				customLogo.style.backgroundImage = `url(TemplateData/${val.logoUrl})`;
-				if(val.width){
-					customLogo.style.width = `${val.width}`;
-				}
-				if(val.height){
-					customLogo.style.height = `${val.height}`;
-				}
-			}
-			
-		})
-
-		var customLoader = document.getElementById("custom-loader");
-		var customBar = document.querySelector(".fill");
-		var container = document.querySelector("#unity-container");
-		var canvas = document.querySelector("#unity-canvas");
-		var loadingBar = document.querySelector("#unity-loading-bar");
-		var progressBarFull = document.querySelector("#unity-progress-bar-full");
-		var fullscreenButton = document.querySelector("#unity-fullscreen-button");
-		var mobileWarning = document.querySelector("#unity-mobile-warning");
+        // To lower canvas resolution on mobile devices to gain some
+        // performance, uncomment the following line:
+        // config.devicePixelRatio = 1;
 
 
-		function sendEmail(companyEmail) {
-			Email.send({
-				Host: "smtp.gmail.com",
-				Username: "shoaibmansoor@narsunstudios.com",
-				Password: "Narsun@12321",
-				To: companyEmail,
-				From: "shoaibmansoor@narsunstudios.com",
-				Subject: "Sending Email using javascript",
-				Body: "Well that was easy!!",
+      } else {
+        // Desktop style: Render the game canvas in a window that can be maximized to fullscreen:
+        canvas.style.width = "960px";
+        canvas.style.height = "600px";
+      }
 
-			})
-				.then(function (message) {
-					alert("Mail has been sent successfully")
-				});
-		}
+      document.querySelector("#unity-loading-bar").style.display = "block";
 
-		if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
-			container.className = "unity-mobile";
-			// config.devicePixelRatio = 1;
-			mobileWarning.style.display = "none";
-			//setTimeout(() => {
-			// mobileWarning.style.display = "block";
-			//}, 5000);
-		} else {
-			canvas.style.width = "100%";
-			canvas.style.height = "100%";
-			//mobileWarning.style.display = "none";
-			mobileWarning.style.display = "none";
-		}
+      var script = document.createElement("script");
+      script.src = loaderUrl;
+      script.onload = () => {
+        createUnityInstance(canvas, config, (progress) => {
+          document.querySelector("#unity-progress-bar-full").style.width = 100 * progress + "%";
+              }).then((unityInstance) => {
+                document.querySelector("#unity-loading-bar").style.display = "none";
+                document.querySelector("#unity-fullscreen-button").onclick = () => {
+                  unityInstance.SetFullscreen(1);
+                };
 
-		customLogo.style.display = "block";
-		customLoader.style.display = "block";
-		//loadingBar.style.display = "block";
+              }).catch((message) => {
+                alert(message);
+              });
+            };
 
-		var script = document.createElement("script");
-		script.src = loaderUrl;
-		script.onload = () => {
-			createUnityInstance(canvas, config, (progress) => {
-				customBar.style.width = 100 * progress + "%";
-			})
-				.then((unityInstance2) => {
-					unityInstance = unityInstance2;
-					window.unityInstance = unityInstance;
-					customLoader.style.display = "none";
-					customLogo.style.display = "none";
+      document.body.appendChild(script);
 
-
-					fullscreenButton.onclick = () => {
-						unityInstance2.SetFullscreen(1);
-					};
-				})
-				.catch((message) => {
-					alert(message);
-				});
-		};
-		document.body.appendChild(script);
-	</script>
-
-	<script>
-		window.addEventListener("message", function (event) {
-			if (event.data === "RELOAD_PAGE") {
-				location.reload(); // Reloads the current page
-			}
-		});
-	</script>
-
-
-	</script>
-
-</body>
-
+    </script>
+  </body>
 </html>
