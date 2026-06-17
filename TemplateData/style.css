@@ -1,16 +1,121 @@
-body { padding: 0; margin: 0 }
-#unity-container { position: absolute }
-#unity-container.unity-desktop { left: 50%; top: 50%; transform: translate(-50%, -50%) }
-#unity-container.unity-mobile { position: fixed; width: 100%; height: 100% }
-#unity-canvas { background: #231F20 }
-.unity-mobile #unity-canvas { width: 100%; height: 100% }
-#unity-loading-bar { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); display: none }
-#unity-logo { width: 154px; height: 130px; background: url('unity-logo-dark.png') no-repeat center }
-#unity-progress-bar-empty { width: 141px; height: 18px; margin-top: 10px; margin-left: 6.5px; background: url('progress-bar-empty-dark.png') no-repeat center }
-#unity-progress-bar-full { width: 0%; height: 18px; margin-top: 10px; background: url('progress-bar-full-dark.png') no-repeat center }
-#unity-footer { position: relative }
-.unity-mobile #unity-footer { display: none }
-#unity-logo-title-footer { float:left; width: 102px; height: 38px; background: url('unity-logo-title-footer.png') no-repeat center }
-#unity-build-title { float: right; margin-right: 10px; line-height: 38px; font-family: arial; font-size: 18px }
-#unity-fullscreen-button { cursor:pointer; float: right; width: 38px; height: 38px; background: url('fullscreen-button.png') no-repeat center }
-#unity-warning { position: absolute; left: 50%; top: 5%; transform: translate(-50%); background: white; padding: 10px; display: none }
+body {
+  padding: 0;
+  margin: 0;
+  background-color: #000000;
+  background-image:
+    url("Blocks.png");
+
+}
+
+#unity-container {
+  position: absolute
+}
+
+#unity-container.unity-desktop {
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%)
+}
+
+#unity-container.unity-mobile {
+  position: fixed;
+  width: 100%;
+  height: 100%
+}
+
+#unity-canvas {
+  background: transparent;
+}
+
+.unity-mobile #unity-canvas {
+  width: 100%;
+  height: 100%
+}
+
+#unity-loading-bar {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  display: none;
+  text-align: center;
+}
+
+#unity-logo {
+  width: 200px;
+  height: 200px;
+  margin: 0 auto;
+  background: url('Coke%20Verse%20LOGO.png') no-repeat center;
+  background-size: contain;
+}
+
+#unity-progress-bar-empty {
+  width: 320px;
+  height: 6px;
+  margin: 80px auto 0 auto;
+  background: #111;
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+#unity-progress-bar-full {
+  width: 0%;
+  height: 100%;
+  border-radius: 50px;
+
+  /* The gradient uses a transition. 
+     At low %, it looks like your image (Red to Dark).
+     As width increases, it feels more solid.
+  */
+  background: linear-gradient(90deg,
+      rgba(215, 30, 30, 1) 0%,
+      /* Vibrancy matched to image */
+      rgba(180, 20, 20, 1) 70%,
+      /* Slight darkening */
+      rgba(40, 40, 40, 1) 100%
+      /* Fade into the bar track */
+    );
+  background-size: 120% 100%;
+  transition: width 0.2s ease-out;
+}
+
+#unity-footer {
+  position: relative
+}
+
+.unity-mobile #unity-footer {
+  display: none
+}
+
+#unity-logo-title-footer {
+  float: left;
+  width: 102px;
+  height: 38px;
+  background: url('unity-logo-title-footer.png') no-repeat center
+}
+
+#unity-build-title {
+  float: right;
+  margin-right: 10px;
+  line-height: 38px;
+  font-family: arial;
+  font-size: 18px
+}
+
+#unity-fullscreen-button {
+  cursor: pointer;
+  float: right;
+  width: 38px;
+  height: 38px;
+  background: url('fullscreen-button.png') no-repeat center
+}
+
+#unity-warning {
+  position: absolute;
+  left: 50%;
+  top: 5%;
+  transform: translate(-50%);
+  background: white;
+  padding: 10px;
+  display: none
+}
